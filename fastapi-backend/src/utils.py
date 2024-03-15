@@ -3,8 +3,9 @@ from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
     title: str
-    year: int
-    # Add more attributes as per your movie data model
+    timestamp: int
+    popularity: float
+    # Add more attributes
 
 class MovieFilterParams(BaseModel):
     genre: List[str]
@@ -37,3 +38,10 @@ class ProductionHouseComparisonData(BaseModel):
     production_houses: Tuple[str, str]
     mode: Literal["popularity", "avg_vote"]
 
+class GenderData:
+    female_crew_count: int
+    total_crew_count: int
+    movie: Movie
+
+class GenderAnalysisResponse(BaseModel):
+    movies: List[GenderData]

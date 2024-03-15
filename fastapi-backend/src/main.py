@@ -2,7 +2,7 @@ from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .utils import ActorComparisonData, ComparisonResponse, DirectorComparisonData, FilteredMoviesResponse, MovieComparisonData, MovieFilterParams, ProductionHouseComparisonData
+from .utils import ActorComparisonData, ComparisonResponse, DirectorComparisonData, FilteredMoviesResponse, GenderAnalysisResponse, MovieComparisonData, MovieFilterParams, ProductionHouseComparisonData
 
 app = FastAPI()
 
@@ -69,3 +69,16 @@ async def compare_production_houses(params: ProductionHouseComparisonData):
     
     return {"data": result}
 
+@app.post("/analyse-gender", response_model=GenderAnalysisResponse)
+async def analyse_gender(params: MovieFilterParams):
+    genre = params.genre
+    ratings = params.ratings
+    language = params.language
+    vote_average = params.vote_average
+    actors = params.actors
+    director = params.director
+    
+    # TODO: Implement that SQL Query for fetching movie data per the params
+    filtered_movies = []
+    
+    return {"filtered_movies": filtered_movies}
