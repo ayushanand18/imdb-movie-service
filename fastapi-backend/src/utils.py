@@ -38,7 +38,7 @@ class ProductionHouseComparisonData(BaseModel):
     production_houses: Tuple[str, str]
     mode: Literal["popularity", "avg_vote"]
 
-class GenderData:
+class GenderData(BaseModel):
     female_crew_count: int
     total_crew_count: int
     movie: Movie
