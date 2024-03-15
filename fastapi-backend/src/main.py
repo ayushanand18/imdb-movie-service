@@ -1,14 +1,15 @@
+from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .utils import FilteredMoviesResponse, MovieFilterParams
+from .utils import ActorComparisonResponse, FilteredMoviesResponse, MovieComparisonData, MovieFilterParams, ActorComparisonData
 
 app = FastAPI()
 
 # CORS Settings
 origins = [
     "http://localhost",
-    "http://localhost:3080",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -33,7 +34,17 @@ async def filter_movies(params: MovieFilterParams):
     actors = params.actors
     director = params.director
     
-    # Implement your filtering logic based on the received parameters
+    # TODO: Implement that SQL Query for fetching movie data per the params
     filtered_movies = []
     
     return {"filtered_movies": filtered_movies}
+
+@app.post("/compare-actors", response_model=ActorComparisonResponse)
+async def compare_actors(params: ActorComparisonData):
+    actors = params.actors
+    mode = params.mode
+    
+    # TODO: Implement that SQL Query for comparing actors
+    result: List[MovieComparisonData] = []
+    
+    return {"data": result}

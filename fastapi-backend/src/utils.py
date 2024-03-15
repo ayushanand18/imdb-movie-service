@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Literal
 from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
@@ -16,3 +16,15 @@ class MovieFilterParams(BaseModel):
 
 class FilteredMoviesResponse(BaseModel):
     filtered_movies: List[Movie]
+
+class MovieComparisonData(BaseModel):
+    timestamp: int
+    movie_name: str
+    value: float
+
+class ActorComparisonData(BaseModel):
+    actors: Tuple[str, str]
+    mode: Literal["popularity", "avg_vote"]
+    
+class ActorComparisonResponse(BaseModel):
+    data: List[MovieComparisonData]
