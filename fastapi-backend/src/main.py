@@ -2,7 +2,7 @@ from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .utils import ActorComparisonResponse, FilteredMoviesResponse, MovieComparisonData, MovieFilterParams, ActorComparisonData
+from .utils import ActorComparisonData, ComparisonResponse, DirectorComparisonData, FilteredMoviesResponse, MovieComparisonData, MovieFilterParams, ProductionHouseComparisonData
 
 app = FastAPI()
 
@@ -39,12 +39,33 @@ async def filter_movies(params: MovieFilterParams):
     
     return {"filtered_movies": filtered_movies}
 
-@app.post("/compare-actors", response_model=ActorComparisonResponse)
+@app.post("/compare-actors", response_model=ComparisonResponse)
 async def compare_actors(params: ActorComparisonData):
     actors = params.actors
     mode = params.mode
     
     # TODO: Implement that SQL Query for comparing actors
     result: List[MovieComparisonData] = []
+
+    return {"data": result}
+
+@app.post("/compare-directors", response_model=ComparisonResponse)
+async def compare_directors(params: DirectorComparisonData):
+    directors = params.directors
+    mode = params.mode
+    
+    # TODO: Implement that SQL Query for comparing directors
+    result: List[MovieComparisonData] = []
     
     return {"data": result}
+
+@app.post("/compare-production-houses", response_model=ComparisonResponse)
+async def compare_production_houses(params: ProductionHouseComparisonData):
+    prod_houses = params.production_houses
+    mode = params.mode
+    
+    # TODO: Implement that SQL Query for comparing production houses
+    result: List[MovieComparisonData] = []
+    
+    return {"data": result}
+

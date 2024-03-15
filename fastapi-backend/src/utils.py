@@ -26,5 +26,14 @@ class ActorComparisonData(BaseModel):
     actors: Tuple[str, str]
     mode: Literal["popularity", "avg_vote"]
     
-class ActorComparisonResponse(BaseModel):
+class ComparisonResponse(BaseModel):
     data: List[MovieComparisonData]
+
+class DirectorComparisonData(BaseModel):
+    directors: Tuple[str, str]
+    mode: Literal["popularity", "avg_vote"]
+
+class ProductionHouseComparisonData(BaseModel):
+    production_houses: Tuple[str, str]
+    mode: Literal["popularity", "avg_vote"]
+
