@@ -23,11 +23,26 @@ app.add_middleware(
 
 @app.get("/")
 async def read_root():
+    """
+    Check if the service is live by returning a greeting message.
+
+    Returns:
+        dict: A dictionary containing a greeting message.
+    """
     return {"message": "Hello, World!"}
 
 
 @app.post("/movie-filter", response_model=FilteredMoviesResponse)
 async def filter_movies(params: MovieFilterParams):
+    """
+    Filter movies based on provided parameters.
+
+    Args:
+        params (MovieFilterParams): The parameters for filtering movies.
+
+    Returns:
+        FilteredMoviesResponse: Response containing filtered movies.
+    """
     genre = params.genre
     ratings = params.ratings
     language = params.language
@@ -35,10 +50,72 @@ async def filter_movies(params: MovieFilterParams):
     actors = params.actors
     director = params.director
     
-    # TODO: Implement that SQL Query for fetching movie data per the params
-    filtered_movies = []
+    # Initialize connection and cursor to None
+    conn = None
+    cur = None
     
-    return {"filtered_movies": filtered_movies}
+    try:
+        # Connect to PostgreSQL database
+        conn = psycopg2.connect(
+            host=SUPABASE_HOST,
+            database=SUPABASE_DATABASE,
+            user=SUPABASE_USER,
+            password=SUPABASE_PASSWORD
+        )
+        
+        # Create a cursor object
+        cur = conn.cursor()
+        
+        # Construct the SQL query to fetch movie data based on the provided parameters
+        query = """
+            SELECT title, release_date AS timestamp, popularity
+            FROM Movie
+            WHERE 1 = 1
+        """
+        
+        # Add filters based on parameters
+        if genre:
+            query += f" AND genres && ARRAY{genre}"
+        if ratings:
+            min_rating, max_rating = ratings
+            query += f" AND vote_average BETWEEN {min_rating} AND {max_rating}"
+        if language:
+            query += f" AND spoken_languages && ARRAY{language}"
+        if vote_average:
+            min_vote_avg, max_vote_avg = vote_average
+            query += f" AND vote_average BETWEEN {min_vote_avg} AND {max_vote_avg}"
+        if actors:
+            query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.id = MovieCredits.movie_id AND cast && ARRAY{}::text[])".format(actors)
+        if director:
+            query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.id = MovieCredits.movie_id AND crew @> '{}'::jsonb)".format(director)
+            
+        query += " ORDER BY release_date"
+        
+        # Execute the query
+        cur.execute(query)
+        rows = cur.fetchall()
+        
+        # Parse the results
+        filtered_movies = []
+        for row in rows:
+            title, timestamp, popularity = row
+            movie = Movie(title=title, timestamp=timestamp, popularity=popularity)
+            filtered_movies.append(movie)
+        
+        return {"filtered_movies": filtered_movies}
+    
+    except psycopg2.DatabaseError as e:
+        # Rollback any pending transaction
+        conn.rollback()
+        print(f"Database Error: {e}")
+        return {"filtered_movies": []}  # Return empty list on error
+    
+    finally:
+        # Close cursor and connection
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 @app.post("/compare-actors", response_model=ComparisonResponse)
 async def compare_actors(params: ActorComparisonData):
