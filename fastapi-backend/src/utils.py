@@ -1,4 +1,4 @@
-from typing import List, Tuple, Literal
+from typing import List, Tuple, Literal, Optional
 from pydantic import BaseModel, Field
 
 class Movie(BaseModel):

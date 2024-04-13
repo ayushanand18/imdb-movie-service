@@ -20,6 +20,7 @@ Movie
     homepage: string;
     id: number;
     imdb_id: string;
+    movie_id: text;
     original_language: string;
     original_title: string;
     overview: string;

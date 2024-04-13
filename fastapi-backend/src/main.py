@@ -103,9 +103,9 @@ async def filter_movies(params: MovieFilterParams):
             min_vote_avg, max_vote_avg = vote_average
             query += f" AND vote_average BETWEEN {min_vote_avg} AND {max_vote_avg}"
         if actors:
-            query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.id = MovieCredits.movie_id AND cast && ARRAY{}::text[])".format(actors)
+            query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.movie_id = MovieCredits.movie_id AND \"cast_name\" = ANY(ARRAY{}::text[]))".format(str(actors))
         if director:
-            query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.id = MovieCredits.movie_id AND crew @> '{}'::jsonb)".format(director)
+            query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.movie_id = MovieCredits.movie_id AND \"crew_name\" = ANY(ARRAY{}::text[]))".format(str(director))
             
         query += " ORDER BY release_date"
         
@@ -181,8 +181,8 @@ async def compare_actors(params: ActorComparisonData):
             cur.execute("""
                 SELECT mc.movie_id, m.title, m.vote_average, m.popularity, m.release_date
                 FROM MovieCredits mc
-                JOIN Movie m ON mc.movie_id = m.id
-                WHERE mc.cast.name = %s
+                JOIN Movie m ON mc.movie_id = m.movie_id
+                WHERE mc.cast_name = %s
             """, (actor,))
             
             rows = cur.fetchall()
@@ -269,8 +269,8 @@ async def compare_directors(params: DirectorComparisonData):
             cur.execute("""
                 SELECT mc.movie_id, m.title, m.vote_average, m.popularity, m.release_date
                 FROM MovieCredits mc
-                JOIN Movie m ON mc.movie_id = m.id
-                WHERE mc.crew.name = %s AND mc.crew.job = 'director'
+                JOIN Movie m ON mc.movie_id = m.movie_id
+                WHERE mc.crew_name = %s AND mc.crew_job = 'director'
             """, (director,))
             
             rows = cur.fetchall()
@@ -358,7 +358,7 @@ async def compare_production_houses(params: ProductionHouseComparisonData):
             cur.execute("""
                 SELECT mc.movie_id, m.title, m.vote_average, m.popularity, m.release_date
                 FROM MovieCredits mc
-                JOIN Movie m ON mc.movie_id = m.id
+                JOIN Movie m ON mc.movie_id = m.movie_id
                 WHERE m.production_companies @> %s::text[]
             """, ([prod_house],))
             
@@ -449,20 +449,20 @@ async def analyse_gender(params: MovieFilterParams):
             SELECT m.release_date, 
                    SUM(CASE WHEN c.gender = 2 THEN 1 ELSE 0 END) AS female_crew_count,
                    COUNT(c.*) AS total_crew_count,
-                   (SELECT json_agg(m) FROM Movie m WHERE m.id = mc.movie_id) AS movie
+                   (SELECT json_agg(m) FROM Movie m WHERE m.movie_id = mc.movie_id) AS movie
             FROM Movie m
-            JOIN MovieCredits mc ON m.id = mc.movie_id
+            JOIN MovieCredits mc ON m.movie_id = mc.movie_id
             JOIN CrewMember c ON mc.crew_id = c.credit_id
             WHERE 1 = 1
         """
         
         # Add filters based on parameters
         if genre:
-            query += f" AND '{genre}' = ANY(m.genres)"
+            query += f" AND ARRAY{str(genre)}::text[] && m.genres"
         if ratings:
             query += f" AND m.vote_average >= {ratings}"
         if language:
-            query += f" AND '{language}' = ANY(m.spoken_languages)"
+            query += f" AND ARRAY{str(language)}::text[] && m.spoken_languages"
         if vote_average:
             query += f" AND m.vote_average >= {vote_average}"
         if actors:
