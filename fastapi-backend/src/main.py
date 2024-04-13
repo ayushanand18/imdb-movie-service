@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
@@ -15,7 +14,9 @@ load_dotenv()
 SUPABASE_HOST = os.getenv("SUPABASE_HOST")
 SUPABASE_DATABASE = os.getenv("SUPABASE_DATABASE")
 SUPABASE_USER = os.getenv("SUPABASE_USER")
-SUPABASE_PASSWORD = os.getenv("SUPABASE_PASSWORD")
+SUPABASE_PSWD = os.getenv("SUPABASE_PASSWORD")
+SUPABASE_DB = os.getenv("SUPABASE_DB")
+SUPABASE_PORT = os.getenv("SUPABASE_PORT")
 
 app = FastAPI()
 
@@ -69,10 +70,15 @@ async def filter_movies(params: MovieFilterParams):
     try:
         # Connect to PostgreSQL database
         conn = psycopg2.connect(
-            host=SUPABASE_HOST,
-            database=SUPABASE_DATABASE,
+            database=SUPABASE_DB,
             user=SUPABASE_USER,
-            password=SUPABASE_PASSWORD
+            password=SUPABASE_PSWD,
+            host=SUPABASE_HOST,
+            port=SUPABASE_PORT,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5
         )
         
         # Create a cursor object
@@ -155,10 +161,15 @@ async def compare_actors(params: ActorComparisonData):
     try:
         # Connect to PostgreSQL database
         conn = psycopg2.connect(
-            host=SUPABASE_HOST,
-            database=SUPABASE_DATABASE,
+            database=SUPABASE_DB,
             user=SUPABASE_USER,
-            password=SUPABASE_PASSWORD
+            password=SUPABASE_PSWD,
+            host=SUPABASE_HOST,
+            port=SUPABASE_PORT,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5
         )
         
         # Create a cursor object
@@ -238,10 +249,15 @@ async def compare_directors(params: DirectorComparisonData):
     try:
         # Connect to PostgreSQL database
         conn = psycopg2.connect(
-            host=SUPABASE_HOST,
-            database=SUPABASE_DATABASE,
+            database=SUPABASE_DB,
             user=SUPABASE_USER,
-            password=SUPABASE_PASSWORD
+            password=SUPABASE_PSWD,
+            host=SUPABASE_HOST,
+            port=SUPABASE_PORT,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5
         )
         
         # Create a cursor object
@@ -322,10 +338,15 @@ async def compare_production_houses(params: ProductionHouseComparisonData):
     try:
         # Connect to PostgreSQL database
         conn = psycopg2.connect(
-            host=SUPABASE_HOST,
-            database=SUPABASE_DATABASE,
+            database=SUPABASE_DB,
             user=SUPABASE_USER,
-            password=SUPABASE_PASSWORD
+            password=SUPABASE_PSWD,
+            host=SUPABASE_HOST,
+            port=SUPABASE_PORT,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5
         )
         
         # Create a cursor object
@@ -409,10 +430,15 @@ async def analyse_gender(params: MovieFilterParams):
     try:
         # Connect to PostgreSQL database
         conn = psycopg2.connect(
-            host=SUPABASE_HOST,
-            database=SUPABASE_DATABASE,
+            database=SUPABASE_DB,
             user=SUPABASE_USER,
-            password=SUPABASE_PASSWORD
+            password=SUPABASE_PSWD,
+            host=SUPABASE_HOST,
+            port=SUPABASE_PORT,
+            keepalives=1,
+            keepalives_idle=30,
+            keepalives_interval=10,
+            keepalives_count=5
         )
         
         # Create a cursor object
