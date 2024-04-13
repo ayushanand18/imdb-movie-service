@@ -2,8 +2,20 @@ from typing import List
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
+from dotenv import load_dotenv
+import json
+import os
+from .utils import ActorComparisonData, ComparisonResponse, DirectorComparisonData, FilteredMoviesResponse, GenderAnalysisResponse, GenderData, Movie, MovieComparisonData, MovieFilterParams, ProductionHouseComparisonData
 
-from .utils import ActorComparisonData, ComparisonResponse, DirectorComparisonData, FilteredMoviesResponse, GenderAnalysisResponse, MovieComparisonData, MovieFilterParams, ProductionHouseComparisonData
+load_dotenv()
+
+#################
+# Environment
+#################
+SUPABASE_HOST = os.getenv("SUPABASE_HOST")
+SUPABASE_DATABASE = os.getenv("SUPABASE_DATABASE")
+SUPABASE_USER = os.getenv("SUPABASE_USER")
+SUPABASE_PASSWORD = os.getenv("SUPABASE_PASSWORD")
 
 app = FastAPI()
 
