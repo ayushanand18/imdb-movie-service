@@ -95,12 +95,12 @@ async def filter_movies(params: MovieFilterParams):
         
         # Add filters based on parameters
         if genre:
-            query += f" AND genres = {genre}"
+            query += f" AND genres = ANY(ARRAY{genre})"
         if ratings:
             min_rating, max_rating = ratings
             query += f" AND vote_average BETWEEN {min_rating} AND {max_rating}"
         if language:
-            query += f" AND spoken_languages = ARRAY{language}"
+            query += f" AND spoken_languages = ANY(ARRAY{language})"
         if vote_average:
             min_vote_avg, max_vote_avg = vote_average
             query += f" AND vote_average BETWEEN {min_vote_avg} AND {max_vote_avg}"
@@ -108,8 +108,12 @@ async def filter_movies(params: MovieFilterParams):
             query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.movie_id = MovieCredits.movie_id AND \"cast_name\" = ANY(ARRAY{}::text[]))".format(str(actors))
         if director:
             query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.movie_id = MovieCredits.movie_id AND \"crew_name\" = ANY(ARRAY{}::text[]))".format(str(director))
-            
-        query += " LIMIT 10"
+        if term:
+            query += f" AND title ILIKE '%{term}%' AND overview ILIKE '%{term}%'"
+
+        query += " LIMIT 40"
+
+        print(query)
         
         # Execute the query
         cur.execute(query)

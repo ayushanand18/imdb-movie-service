@@ -29,7 +29,7 @@ class Movie(BaseModel):
 class MovieFilterParams(BaseModel):
     genre: List[str]
     ratings: Tuple[float, float]
-    language: List[str]
+    language: Optional[List[str]]
     vote_average: Tuple[float, float]
     actors: List[str]
     director: List[str]
