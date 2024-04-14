@@ -2,10 +2,29 @@ from typing import List, Tuple, Literal, Optional
 from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
-    title: str
-    timestamp: int
+    overview: str
+    timestamp: str
+    adult: bool
+    budget: int
+    genres: str
+    homepage: Optional[str]
+    imdb_id: str
+    original_language: str
+    original_title: str
     popularity: float
-    # Add more attributes
+    poster_path: str
+    production_companies: str
+    production_countries: str
+    release_date: str
+    revenue: int
+    runtime: int
+    spoken_language: str
+    status: str
+    tagline: Optional[str]
+    title: Optional[str]
+    vote_average: float
+    vote_count: int
+    movie_id: int
 
 class MovieFilterParams(BaseModel):
     genre: List[str]
