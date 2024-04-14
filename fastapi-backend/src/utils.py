@@ -3,22 +3,22 @@ from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
     overview: str
-    timestamp: str
+    release_date: Optional[str]
     adult: bool
     budget: int
-    genres: str
+    genres: Optional[str]
     homepage: Optional[str]
     imdb_id: str
     original_language: str
     original_title: str
     popularity: float
     poster_path: str
-    production_companies: str
-    production_countries: str
+    production_companies: Optional[str]
+    production_countries: Optional[str]
     release_date: str
     revenue: int
     runtime: int
-    spoken_language: str
+    spoken_languages: Optional[str]
     status: str
     tagline: Optional[str]
     title: Optional[str]
@@ -33,6 +33,7 @@ class MovieFilterParams(BaseModel):
     vote_average: Tuple[float, float]
     actors: List[str]
     director: List[str]
+    term: str
 
 class FilteredMoviesResponse(BaseModel):
     filtered_movies: List[Movie]

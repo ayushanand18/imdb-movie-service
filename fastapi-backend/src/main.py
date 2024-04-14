@@ -24,6 +24,7 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 app.add_middleware(
@@ -62,6 +63,7 @@ async def filter_movies(params: MovieFilterParams):
     vote_average = params.vote_average
     actors = params.actors
     director = params.director
+    term = params.term
     
     # Initialize connection and cursor to None
     conn = None
@@ -86,7 +88,7 @@ async def filter_movies(params: MovieFilterParams):
         
         # Construct the SQL query to fetch movie data based on the provided parameters
         query = """
-            SELECT title, release_date AS timestamp, popularity
+            SELECT distinct *
             FROM Movie
             WHERE 1 = 1
         """
@@ -107,7 +109,7 @@ async def filter_movies(params: MovieFilterParams):
         if director:
             query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.movie_id = MovieCredits.movie_id AND \"crew_name\" = ANY(ARRAY{}::text[]))".format(str(director))
             
-        query += " ORDER BY release_date"
+        query += " LIMIT 10"
         
         # Execute the query
         cur.execute(query)
@@ -116,8 +118,31 @@ async def filter_movies(params: MovieFilterParams):
         # Parse the results
         filtered_movies = []
         for row in rows:
-            title, timestamp, popularity = row
-            movie = Movie(title=title, timestamp=timestamp, popularity=popularity)
+            movie = Movie(
+                adult=row[0],
+                budget=row[1],
+                genres=row[2],
+                homepage=row[3],
+                movie_id=row[4],
+                imdb_id=row[5],
+                original_language=row[6],
+                original_title=row[7],
+                overview=row[8],
+                popularity=row[9],
+                poster_path=row[10],
+                production_companies=row[11],
+                production_countries=row[12],
+                release_date=row[13],
+                revenue=row[14],
+                runtime=row[15],
+                spoken_languages=row[16],
+                status=row[17],
+                tagline=row[18],
+                title=row[19],
+                vote_average=row[20],
+                vote_count=row[21]
+            )
+
             filtered_movies.append(movie)
         
         return {"filtered_movies": filtered_movies}
