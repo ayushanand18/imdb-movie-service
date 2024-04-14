@@ -95,12 +95,12 @@ async def filter_movies(params: MovieFilterParams):
         
         # Add filters based on parameters
         if genre:
-            query += f" AND genres && ARRAY{genre}"
+            query += f" AND genres = {genre}"
         if ratings:
             min_rating, max_rating = ratings
             query += f" AND vote_average BETWEEN {min_rating} AND {max_rating}"
         if language:
-            query += f" AND spoken_languages && ARRAY{language}"
+            query += f" AND spoken_languages = ARRAY{language}"
         if vote_average:
             min_vote_avg, max_vote_avg = vote_average
             query += f" AND vote_average BETWEEN {min_vote_avg} AND {max_vote_avg}"
@@ -483,11 +483,11 @@ async def analyse_gender(params: MovieFilterParams):
         
         # Add filters based on parameters
         if genre:
-            query += f" AND ARRAY{str(genre)}::text[] && m.genres"
+            query += f" AND m.genres IN ARRAY{str(genre)}::text[]"
         if ratings:
             query += f" AND m.vote_average >= {ratings}"
         if language:
-            query += f" AND ARRAY{str(language)}::text[] && m.spoken_languages"
+            query += f" AND m.spoken_languages IN ARRAY{str(language)}::text[]"
         if vote_average:
             query += f" AND m.vote_average >= {vote_average}"
         if actors:
