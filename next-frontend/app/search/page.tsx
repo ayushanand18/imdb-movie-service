@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { actors, directors, genres, languages } from "./constants";
 
 interface MovieFilters {
   genre: string[];
@@ -55,12 +56,10 @@ const IndexPage: React.FC = () => {
     }>,
     name: keyof MovieFilters
   ) => {
-    if (selectedOptions) {
-      setFilters((prevFilters) => ({
-        ...prevFilters,
-        [name]: selectedOptions.values,
-      }));
-    }
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: Array.from(selectedOptions.values()).map((val) => val.value),
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,10 +117,7 @@ const IndexPage: React.FC = () => {
                     id="director"
                     name="director"
                     isMulti
-                    options={[
-                      { value: "director1", label: "Director 1" },
-                      { value: "director2", label: "Director 2" },
-                    ]}
+                    options={directors}
                     onChange={(selectedOptions) =>
                       handleMultiSelectChange(selectedOptions, "director")
                     }
@@ -133,11 +129,7 @@ const IndexPage: React.FC = () => {
                     id="language"
                     name="language"
                     isMulti
-                    options={[
-                      { value: "english", label: "English" },
-                      { value: "french", label: "French" },
-                      // Add more language options as needed
-                    ]}
+                    options={languages}
                     onChange={(selectedOptions) =>
                       handleMultiSelectChange(selectedOptions, "language")
                     }
@@ -149,11 +141,7 @@ const IndexPage: React.FC = () => {
                     id="actors"
                     name="actors"
                     isMulti
-                    options={[
-                      { value: "actor1", label: "Actor 1" },
-                      { value: "actor2", label: "Actor 2" },
-                      // Add more actor options as needed
-                    ]}
+                    options={actors}
                     onChange={(selectedOptions) =>
                       handleMultiSelectChange(selectedOptions, "actors")
                     }
@@ -165,10 +153,7 @@ const IndexPage: React.FC = () => {
                     id="genre"
                     name="genre"
                     isMulti
-                    options={[
-                      { value: "Animation", label: "Animation" },
-                      { value: "Drama", label: "Drama" },
-                    ]}
+                    options={genres}
                     onChange={(selectedOptions) =>
                       handleMultiSelectChange(selectedOptions, "genre")
                     }
@@ -181,7 +166,7 @@ const IndexPage: React.FC = () => {
                     type="number"
                     id="minRating"
                     name="minRating"
-                    value={filters.ratings[0] || 0}
+                    value={filters.ratings[0] || ""}
                     onChange={(e) =>
                       setFilters((prevFilters) => ({
                         ...prevFilters,
@@ -197,7 +182,7 @@ const IndexPage: React.FC = () => {
                     type="number"
                     id="highRating"
                     name="highRating"
-                    value={filters.ratings[1] || 10}
+                    value={filters.ratings[1] || ""}
                     onChange={(e) =>
                       setFilters((prevFilters) => ({
                         ...prevFilters,
@@ -216,7 +201,7 @@ const IndexPage: React.FC = () => {
                     type="number"
                     id="lowRating"
                     name="lowRating"
-                    value={filters.vote_average[0] || 0}
+                    value={filters.vote_average[0] || ""}
                     onChange={(e) =>
                       setFilters((prevFilters) => ({
                         ...prevFilters,
@@ -232,7 +217,7 @@ const IndexPage: React.FC = () => {
                     type="number"
                     id="highRating"
                     name="highRating"
-                    value={filters.vote_average[1] || 10}
+                    value={filters.vote_average[1] || ""}
                     onChange={(e) =>
                       setFilters((prevFilters) => ({
                         ...prevFilters,
