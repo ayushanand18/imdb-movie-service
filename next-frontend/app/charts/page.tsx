@@ -3,6 +3,21 @@
 import Navbar from "../Navbar";
 import { useState, useEffect } from "react";
 import { Chart } from "chart.js/auto";
+import { actors, directors } from "../search/constants";
+
+const getNamesArray = (comparisonType: string): string[] => {
+  switch (comparisonType) {
+    case "actors":
+      return actors.map((val) => val.value);
+    case "directors":
+      return directors.map((val) => val.value);
+    case "production-houses":
+      return [];
+    // return productionHouses;
+    default:
+      return [];
+  }
+};
 
 export default function Charts() {
   // State variables for dropdown options
@@ -138,27 +153,33 @@ export default function Charts() {
               onChange={(e) => setEntity1(e.target.value)}
             >
               <option value="">Select Entity</option>
-              <option value="entity1_1">Entity 1 Option 1</option>
-              <option value="entity1_2">Entity 1 Option 2</option>
+              {getNamesArray(comparisonType).map((name, index) => (
+                <option key={index} value={name}>
+                  {name}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="mb-4">
             <label
-              htmlFor="entity2"
+              htmlFor="entity1"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
               Entity 2
             </label>
             <select
-              id="entity2"
+              id="entity1"
               className="mt-1 block w-full border-gray-300 dark:border-gray-700 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-white rounded-md shadow-sm"
-              value={entity2}
+              value={entity1}
               onChange={(e) => setEntity2(e.target.value)}
             >
               <option value="">Select Entity</option>
-              <option value="entity2_1">Entity 2 Option 1</option>
-              <option value="entity2_2">Entity 2 Option 2</option>
+              {getNamesArray(comparisonType).map((name, index) => (
+                <option key={index} value={name}>
+                  {name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
