@@ -89,8 +89,8 @@ const IndexPage: React.FC = () => {
     <main className="h-screen bg-black text-white w-screen flex flex-col">
       <Navbar />
 
-      <div className="h-full bg-black w-full text-white flex flex-col justify-center items-center">
-        <h1 className="text-3xl font-bold mb-4">Movie Search</h1>
+      <div className="h-full dark bg-black w-full text-white flex flex-col max-w-7xl mx-auto">
+        <h1 className="font-bold py-4 text-6xl dark">Movie Search</h1>
         <form onSubmit={handleSubmit} className="flex">
           <Input
             type="text"
@@ -99,7 +99,7 @@ const IndexPage: React.FC = () => {
               setFilters((filters) => ({ ...filters, term: e.target.value }))
             }
             placeholder="Search for movies..."
-            className="mr-2 px-2 py-1 rounded text-black"
+            className="mr-2 px-2 py-1 border border-slate-400 rounded text-black max-w-lg"
           />
           <Button
             type="submit"
