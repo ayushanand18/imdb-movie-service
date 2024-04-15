@@ -1,5 +1,6 @@
 import React from "react";
 import "./Body.css";
+import Link from "next/link";
 
 const Navbar = () => {
   return (
@@ -15,10 +16,14 @@ const Navbar = () => {
             </span>
           </div>
           <div className="flex items-center">
-            <span className="text-white text-xl font-bold">MOVIES SAVED</span>
+            <Link href="/search">
+              <span className="text-white text-xl font-bold">MOVIES SAVED</span>
+            </Link>
           </div>
           <div className="flex items-center">
-            <span className="text-white text-xl font-bold">CHARTS</span>
+            <Link href="/charts">
+              <span className="text-white text-xl font-bold">CHARTS</span>
+            </Link>
           </div>
         </div>
       </div>
