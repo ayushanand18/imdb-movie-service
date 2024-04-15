@@ -38,25 +38,26 @@ class MovieFilterParams(BaseModel):
 class FilteredMoviesResponse(BaseModel):
     filtered_movies: List[Movie]
 
-class MovieComparisonData(BaseModel):
-    timestamp: int
-    movie_name: str
-    value: float
-
 class ActorComparisonData(BaseModel):
     actors: Tuple[str, str]
-    mode: Literal["popularity", "avg_vote"]
-    
+    mode: Literal["popularity", "vote_average"]
+
+class MovieComparisonData(BaseModel):
+    release_date: str
+    movie_name: str
+    movie_id: str
+    value: float
+
 class ComparisonResponse(BaseModel):
-    data: List[MovieComparisonData]
+    data: Tuple[List[MovieComparisonData], List[MovieComparisonData]]
 
 class DirectorComparisonData(BaseModel):
     directors: Tuple[str, str]
-    mode: Literal["popularity", "avg_vote"]
+    mode: Literal["popularity", "vote_average"]
 
 class ProductionHouseComparisonData(BaseModel):
-    production_houses: Tuple[str, str]
-    mode: Literal["popularity", "avg_vote"]
+    productionhouses: Tuple[str, str]
+    mode: Literal["popularity", "average_vote"]
 
 class GenderData(BaseModel):
     female_crew_count: int

@@ -206,44 +206,26 @@ async def compare_actors(params: ActorComparisonData):
         cur = conn.cursor()
         
         # Fetch movies for each actor and their respective vote averages, popularity, and release dates
-        actor_movies_data = []
-        for actor in actors:
+        actor_movies_data = [[], []]
+        for idx in range(len(actors)):
             cur.execute("""
                 SELECT mc.movie_id, m.title, m.vote_average, m.popularity, m.release_date
                 FROM MovieCredits mc
-                JOIN Movie m ON mc.movie_id = m.movie_id
+                JOIN Movie m ON mc.movie_id = m.movie_id::text
                 WHERE mc.cast_name = %s
-            """, (actor,))
+            """, (actors[idx],))
             
             rows = cur.fetchall()
             for row in rows:
                 movie_id, title, vote_average, popularity, release_date = row
-                actor_movies_data.append({
+                actor_movies_data[idx].append({
                     "movie_id": movie_id,
-                    "timestamp": release_date,  # Use release date as timestamp
+                    "release_date": release_date,
                     "movie_name": title,
-                    "vote_average": vote_average,
-                    "popularity": popularity
+                    "value": vote_average if mode == "vote_average" else popularity
                 })
-        
-        # Compare movies based on vote_average and popularity
-        comparison_results = []
-        for movie_data in actor_movies_data:
-            comparison_value = abs(movie_data["vote_average"] - actor_movies_data[1]["vote_average"])
-            comparison_results.append({
-                "timestamp": movie_data["timestamp"],  # Include timestamp
-                "movie_name": movie_data["movie_name"],
-                "value": comparison_value
-            })
-            
-            comparison_value = abs(movie_data["popularity"] - actor_movies_data[1]["popularity"])
-            comparison_results.append({
-                "timestamp": movie_data["timestamp"],  # Include timestamp
-                "movie_name": movie_data["movie_name"],
-                "value": comparison_value
-            })
-        
-        return {"data": comparison_results}
+                
+        return {"data": actor_movies_data}
     
     except psycopg2.DatabaseError as e:
         # Rollback any pending transaction
@@ -294,44 +276,27 @@ async def compare_directors(params: DirectorComparisonData):
         cur = conn.cursor()
         
         # Fetch movies for each director and their respective vote averages, popularity, and release dates
-        director_movies_data = []
-        for director in directors:
+        director_movies_data = [[], []]
+        for idx in range(len(directors)):
             cur.execute("""
                 SELECT mc.movie_id, m.title, m.vote_average, m.popularity, m.release_date
                 FROM MovieCredits mc
-                JOIN Movie m ON mc.movie_id = m.movie_id
-                WHERE mc.crew_name = %s AND mc.crew_job = 'director'
-            """, (director,))
+                JOIN Movie m ON mc.movie_id = m.movie_id::text
+                WHERE mc.crew_name = %s AND mc.crew_job = 'Director'
+            """, (directors[idx],))
             
             rows = cur.fetchall()
             for row in rows:
                 movie_id, title, vote_average, popularity, release_date = row
-                director_movies_data.append({
+                director_movies_data[idx].append({
                     "movie_id": movie_id,
                     "movie_name": title,
-                    "vote_average": vote_average,
-                    "popularity": popularity,
+                    "value": vote_average if mode == "vote_average" else popularity,
                     "release_date": release_date
                 })
         
-        # Compare movies based on vote_average, popularity, and release date
-        comparison_results = []
-        for movie_data in director_movies_data:
-            comparison_value = abs(movie_data["vote_average"] - director_movies_data[1]["vote_average"])
-            comparison_results.append({
-                "timestamp": movie_data["release_date"],  # Add release date as timestamp
-                "movie_name": movie_data["movie_name"],
-                "value": comparison_value
-            })
-            
-            comparison_value = abs(movie_data["popularity"] - director_movies_data[1]["popularity"])
-            comparison_results.append({
-                "timestamp": movie_data["release_date"],  # Add release date as timestamp
-                "movie_name": movie_data["movie_name"],
-                "value": comparison_value
-            })
         
-        return {"data": comparison_results}
+        return {"data": director_movies_data}
     
     except psycopg2.DatabaseError as e:
         # Rollback any pending transaction
@@ -347,7 +312,7 @@ async def compare_directors(params: DirectorComparisonData):
             conn.close()
 
 
-@app.post("/compare-production-houses", response_model=ComparisonResponse)
+@app.post("/compare-productionhouses", response_model=ComparisonResponse)
 async def compare_production_houses(params: ProductionHouseComparisonData):
     """
     Compare movies of two production houses based on vote_average and popularity.
@@ -388,8 +353,8 @@ async def compare_production_houses(params: ProductionHouseComparisonData):
             cur.execute("""
                 SELECT mc.movie_id, m.title, m.vote_average, m.popularity, m.release_date
                 FROM MovieCredits mc
-                JOIN Movie m ON mc.movie_id = m.movie_id
-                WHERE m.production_companies @> %s::text[]
+                JOIN Movie m ON mc.movie_id = m.movie_id::text
+                WHERE m.production_companies @> %s::text
             """, ([prod_house],))
             
             rows = cur.fetchall()
@@ -479,9 +444,9 @@ async def analyse_gender(params: MovieFilterParams):
             SELECT m.release_date, 
                    SUM(CASE WHEN c.gender = 2 THEN 1 ELSE 0 END) AS female_crew_count,
                    COUNT(c.*) AS total_crew_count,
-                   (SELECT json_agg(m) FROM Movie m WHERE m.movie_id = mc.movie_id) AS movie
+                   (SELECT json_agg(m) FROM Movie m WHERE m.movie_id::text = mc.movie_id) AS movie
             FROM Movie m
-            JOIN MovieCredits mc ON m.movie_id = mc.movie_id
+            JOIN MovieCredits mc ON m.movie_id::text = mc.movie_id
             JOIN CrewMember c ON mc.crew_id = c.credit_id
             WHERE 1 = 1
         """
