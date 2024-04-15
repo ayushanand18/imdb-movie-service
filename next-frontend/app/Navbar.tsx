@@ -8,16 +8,18 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
-            <span className="text-white text-xl font-bold cursor-pointer">
-              <img
-                className="header_logo"
-                src="https://raw.githubusercontent.com/thatanjan/netflix-clone-yt/youtube/media/netflix.svg"
-              />
+            <span className="text-red-600 text-xl font-extrabold cursor-pointer">
+              <Link href="/">IMDB MOVIE SEARCH</Link>
             </span>
           </div>
           <div className="flex items-center">
             <Link href="/search">
-              <span className="text-white text-xl font-bold">MOVIES SAVED</span>
+              <span className="text-white text-xl font-bold">SEARCH MOVIES</span>
+            </Link>
+          </div>
+          <div className="flex items-center">
+            <Link href="/gender">
+              <span className="text-white text-xl font-bold">GENDER TRENDS</span>
             </Link>
           </div>
           <div className="flex items-center">
