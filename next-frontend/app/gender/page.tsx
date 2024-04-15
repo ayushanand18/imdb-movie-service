@@ -1,8 +1,8 @@
 // pages/index.tsx
 "use client";
-import React, { useState } from "react";
-import { Movie, MovieComponent } from "@/components/utils/movie";
+import React, { useEffect, useState } from "react";
 import Select, { MultiValue } from "react-select";
+import { Chart } from "chart.js/auto";
 import Navbar from "../Navbar";
 
 import {
@@ -27,6 +27,12 @@ interface MovieFilters {
   term: string;
 }
 
+interface GenderData {
+  female_crew_count: number;
+  total_crew_count: number;
+  release_date: string;
+}
+
 const IndexPage: React.FC = () => {
   const [filters, setFilters] = useState<MovieFilters>({
     genre: [],
@@ -38,7 +44,72 @@ const IndexPage: React.FC = () => {
     term: "",
   });
 
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<GenderData[]>([]);
+
+  const renderChart = (data: GenderData[]) => {
+    // Extract timestamps and values for entity1
+    const entityTimestamps = data.map(
+      (item) => new Date(item.release_date.split("-").reverse().join("-"))
+    );
+    const entityFemaleValues = data.map((item) => item.female_crew_count);
+    const entityTotalValues = data.map((item) => item.total_crew_count);
+
+    const chartData = {
+      labels: entityTimestamps,
+      datasets: [
+        {
+          label: "female",
+          data: entityFemaleValues,
+          borderColor: "rgba(255, 99, 132, 1)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          tension: 0.4,
+        },
+        {
+          label: "total",
+          data: entityTotalValues,
+          borderColor: "rgba(99, 255, 132, 1)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
+          tension: 0.4,
+        },
+      ],
+    };
+
+    // Example chart options
+    const chartOptions = {
+      scales: {
+        x: {
+          display: false,
+        },
+        y: {
+          beginAtZero: true,
+        },
+      },
+    };
+
+    // Get canvas elements
+    const ctx = document.getElementById("chart1") as HTMLCanvasElement;
+
+    // Destroy existing charts if they exist
+    if (ctx) {
+      const existingChart1 = Chart.getChart(ctx);
+      if (existingChart1) {
+        existingChart1.destroy();
+      }
+    }
+
+    // Render the chart
+    new Chart(ctx, {
+      type: "line",
+      data: chartData,
+      options: chartOptions,
+    });
+  };
+
+  useEffect(() => {
+    if (movies.length) {
+      renderChart(movies);
+    }
+  }, [movies]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -67,7 +138,7 @@ const IndexPage: React.FC = () => {
     e.preventDefault();
 
     try {
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/movie-filter`;
+      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/analyse-gender`;
 
       const response = await fetch(url, {
         method: "POST",
@@ -79,7 +150,7 @@ const IndexPage: React.FC = () => {
       if (!response.ok) throw Error("Error");
       const data = await response.json();
 
-      setMovies(data.filtered_movies);
+      setMovies(data.movies);
     } catch (error) {
       console.error("Error fetching movies:", error);
     }
@@ -90,7 +161,7 @@ const IndexPage: React.FC = () => {
       <Navbar />
 
       <div className="dark h-full dark bg-black w-full text-white flex flex-col max-w-7xl mx-auto">
-        <h1 className="font-bold py-8 text-5xl dark">Movie Search</h1>
+        <h1 className="font-bold py-8 text-5xl dark">Analyse Gender Ratio</h1>
         <form onSubmit={handleSubmit} className="flex py-6">
           <Input
             type="text"
@@ -101,12 +172,12 @@ const IndexPage: React.FC = () => {
             placeholder="Search for movies..."
             className="mr-2 px-2 py-1 border border-slate-400 rounded max-w-lg"
           />
-          
+
           <Button
             type="submit"
             className="px-4 py-2 bg-green-500 mx-2 text-white rounded hover:bg-green-600"
           >
-            Search
+            Analyse Gender Ratio
           </Button>
 
           <Sheet>
@@ -240,10 +311,10 @@ const IndexPage: React.FC = () => {
             </SheetContent>
           </Sheet>
         </form>
-        <div className="flex flex-col gap-y-4">
-          {movies.map((movie, index) => (
-            <MovieComponent key={index} movie={movie} />
-          ))}
+        <div className="flex flex-row items-center justify-center dark:bg-gray-900 gap-6 py-6">
+          <div className="max-w-2xl p-6 w-[36em] bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+            <canvas id="chart1" className="mt-4 w-full"></canvas>
+          </div>
         </div>
       </div>
     </main>

@@ -110,7 +110,7 @@ async def filter_movies(params: MovieFilterParams):
         if director:
             query += " AND EXISTS (SELECT 1 FROM MovieCredits WHERE Movie.movie_id = MovieCredits.movie_id AND \"crew_name\" = ANY(ARRAY{}::text[]))".format(str(director))
         if term:
-            query += f" AND title ILIKE '%{term}%' AND overview ILIKE '%{term}%'"
+            query += f" AND title ILIKE '%{term}%' OR overview ILIKE '%{term}%'"
 
         query += " LIMIT 40"
 
@@ -417,6 +417,7 @@ async def analyse_gender(params: MovieFilterParams):
     vote_average = params.vote_average
     actors = params.actors
     director = params.director
+    term = params.term
     
     # Initialize connection and cursor to None
     conn = None
@@ -441,30 +442,32 @@ async def analyse_gender(params: MovieFilterParams):
         
         # Construct the SQL query to fetch movie data based on the provided parameters
         query = """
-            SELECT m.release_date, 
-                   SUM(CASE WHEN c.gender = 2 THEN 1 ELSE 0 END) AS female_crew_count,
-                   COUNT(c.*) AS total_crew_count,
-                   (SELECT json_agg(m) FROM Movie m WHERE m.movie_id::text = mc.movie_id) AS movie
-            FROM Movie m
-            JOIN MovieCredits mc ON m.movie_id::text = mc.movie_id
-            JOIN CrewMember c ON mc.crew_id = c.credit_id
+            SELECT 
+                m.release_date, 
+                SUM(CASE WHEN mc.crew_gender = 2 THEN 1 ELSE 0 END) AS female_crew_count,
+                COUNT(mc.*) AS total_crew_count,
+                m.release_date
+            FROM 
+                Movie m
+            JOIN 
+                MovieCredits mc ON m.movie_id::text = mc.movie_id
             WHERE 1 = 1
         """
         
         # Add filters based on parameters
         if genre:
-            query += f" AND m.genres IN ARRAY{str(genre)}::text[]"
-        if ratings:
-            query += f" AND m.vote_average >= {ratings}"
+            query += f" AND m.genres = ANY(ARRAY{str(genre)}::text[]) "
         if language:
-            query += f" AND m.spoken_languages IN ARRAY{str(language)}::text[]"
+            query += f" AND m.spoken_languages = ANY(ARRAY{str(language)}::text[]) "
         if vote_average:
-            query += f" AND m.vote_average >= {vote_average}"
+            query += f" AND m.vote_average between {vote_average[0]} and {vote_average[1]} "
         if actors:
             for actor in actors:
                 query += f" AND '{actor}' = ANY(STRING_TO_ARRAY(c.name, ','))"
         if director:
             query += f" AND '{director}' = ANY(STRING_TO_ARRAY(mc.crew->>'name', ','))"
+        if term:
+            query += f" AND title ILIKE '%{term}%' OR overview ILIKE '%{term}%'"
             
         query += " GROUP BY m.release_date ORDER BY m.release_date"
         
@@ -475,12 +478,12 @@ async def analyse_gender(params: MovieFilterParams):
         # Parse the results
         gender_analysis_data = []
         for row in rows:
-            release_date, female_crew_count, total_crew_count, movie_json = row
-            movie = json.loads(movie_json)
+            release_date, female_crew_count, total_crew_count, _ = row
+            # movie = json.loads(movie_json)
             gender_data = GenderData(
-                female_crew_count=female_crew_count,
-                total_crew_count=total_crew_count,
-                movie=movie
+                female_crew_count=int(female_crew_count),
+                total_crew_count=int(total_crew_count),
+                release_date=str(release_date)
             )
             gender_analysis_data.append(gender_data)
         

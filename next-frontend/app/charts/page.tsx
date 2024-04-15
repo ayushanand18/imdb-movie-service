@@ -20,7 +20,6 @@ const getNamesArray = (comparisonType: string): string[] => {
       return directors.map((val) => val.value);
     case "production-houses":
       return [];
-    // return productionHouses;
     default:
       return [];
   }
@@ -82,8 +81,6 @@ export default function Charts() {
       (item) => new Date(item.release_date.split("-").reverse().join("-"))
     );
     const entity2Values = entity2Data.map((item) => item.value);
-
-    console.log(dressData(entity1Values));
 
     const chartData1 = {
       labels: entity1Timestamps,
@@ -164,7 +161,7 @@ export default function Charts() {
       <Navbar />
 
       <div className="h-full dark bg-black w-full text-white flex flex-col max-w-7xl mx-auto">
-        <div className="font-bold py-4 text-6xl dark">Charts</div>
+        <div className="font-bold py-8 text-5xl dark">Charts</div>
         <div className="flex flex-row gap-x-12">
           <div className="mb-4">
             <label

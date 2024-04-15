@@ -62,7 +62,7 @@ class ProductionHouseComparisonData(BaseModel):
 class GenderData(BaseModel):
     female_crew_count: int
     total_crew_count: int
-    movie: Movie
+    release_date: str
 
 class GenderAnalysisResponse(BaseModel):
     movies: List[GenderData]
